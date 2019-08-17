@@ -8,17 +8,23 @@ import {Container, Fab, Logo, Input, Button, TextBtn} from './styles';
 
 import logo from '../../assets/logo.png';
 
+import ModalBoxes from '../../components/ModalBoxes';
+
 class Main extends Component {
   state = {
     box_name: '',
+    opened: false,
+    boxes: [],
   };
 
   async componentDidMount() {
-    await AsyncStorage.setItem('@TecProdBox:box', '5d56d49089e10100179964e2');
     const box_id = await AsyncStorage.getItem('@TecProdBox:box');
+    const {data: boxes} = await api.get('boxes');
 
     if (box_id) {
       this.props.navigation.navigate('Box');
+    } else {
+      this.setState({boxes});
     }
   }
 
@@ -29,10 +35,13 @@ class Main extends Component {
       title: box_name,
     });
 
-    await AsyncStorage.setItem('@TecProdBox:box', response.data._id);
-
     box_name = '';
     this.setState({box_name});
+    this.enterBox(response.data._id);
+  };
+
+  enterBox = async box_id => {
+    await AsyncStorage.setItem('@TecProdBox:box', box_id);
     this.props.navigation.navigate('Box');
   };
 
@@ -40,9 +49,21 @@ class Main extends Component {
     this.setState({box_name});
   };
 
+  toogleOpened = () => {
+    let {opened} = this.state;
+    opened = !opened;
+    this.setState({opened});
+  };
+
   render() {
     return (
       <Container>
+        <ModalBoxes
+          boxes={this.state.boxes}
+          closeModal={this.toogleOpened}
+          opened={this.state.opened}
+          enterBox={this.enterBox}
+        />
         <Logo source={logo} />
         <Input
           placeholder="Create a Box"
@@ -56,7 +77,7 @@ class Main extends Component {
         <Button onPress={this.handleSignIn}>
           <TextBtn>Create</TextBtn>
         </Button>
-        <Fab onPress={() => {}}>
+        <Fab onPress={this.toogleOpened}>
           <Icon name="folder-shared" size={24} color="#fff" />
         </Fab>
       </Container>

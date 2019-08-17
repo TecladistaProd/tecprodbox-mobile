@@ -39,8 +39,8 @@ class Box extends Component {
 
   subscribeToNewFiles = box_id => {
     const io = socket(
-      // 'https://tecprodbox-backend.herokuapp.com'
-      'http://localhost:9000',
+      'https://tecprodbox-backend.herokuapp.com',
+      // 'http://localhost:9000',
     );
     io.emit('connect_room', box_id);
     io.on('file', data => {
